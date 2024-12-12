@@ -4,15 +4,16 @@ using CarStockApi.Models;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 using System.Data;
-using System.Xml.Linq;
 
 public class DatabaseInitializer
 {
     private readonly IDbConnection _dbConnection;
+    private readonly PasswordHasher<DealerCredentials> _hasher;
 
-    public DatabaseInitializer(IDbConnection dbConnection)
+    public DatabaseInitializer(IDbConnection dbConnection, PasswordHasher<DealerCredentials> hasher)
     {
         _dbConnection = dbConnection;
+        _hasher = hasher;
     }
 
     public void Initialize()
@@ -58,23 +59,15 @@ public class DatabaseInitializer
 
         if (dealerCount == 0)
         {
-            PasswordHasher<Dealer> passwordHasher = new PasswordHasher<Dealer>();
-
-            Dealer dealerA = new Dealer();
-            dealerA.Name = "Alice";
-            dealerA.Username = "alice123";
-            dealerA.Password = "pass";
+            DealerCredentials dealerACreds = new() { Username = "alice123", Password = "pass" };
 
             _dbConnection.Execute("INSERT INTO Dealers (Name, Username, Password) VALUES (@Name, @Username, @Password)",
-                new { Name = dealerA.Name, Username = dealerA.Username, Password = passwordHasher.HashPassword(dealerA, dealerA.Password) });
+                new { Name = "Alice", Username = dealerACreds.Username, Password = _hasher.HashPassword(dealerACreds, dealerACreds.Password) });
 
-            Dealer dealerB = new Dealer();
-            dealerB.Name = "Bob";
-            dealerB.Username = "carDealerBob";
-            dealerB.Password = "password123";
+            DealerCredentials dealerBCreds = new() { Username = "bobCarDealer", Password = "password123" };
 
             _dbConnection.Execute("INSERT INTO Dealers (Name, Username, Password) VALUES (@Name, @Username, @Password)",
-                new { Name = dealerB.Name, Username = dealerB.Username, Password = passwordHasher.HashPassword(dealerB, dealerB.Password) });
+                new { Name = "Bob", Username = dealerBCreds.Username, Password = _hasher.HashPassword(dealerBCreds, dealerBCreds.Password) });
         }
 
         var carCount = _dbConnection.ExecuteScalar<int>("SELECT COUNT(*) FROM Cars");

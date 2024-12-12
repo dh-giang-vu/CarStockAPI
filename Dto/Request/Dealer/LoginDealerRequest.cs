@@ -2,9 +2,8 @@
 
 using CarStockApi.Models;
 
-public class RegisterDealerRequest
+public class LoginDealerRequest
 {
-    public required string Name { get; set; }
     public required DealerCredentials Credentials { get; set; }
 
 }
