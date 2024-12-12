@@ -1,6 +1,5 @@
 ﻿namespace CarStockApi.Endpoints;
 
-using CarStockApi.Dto.Request.Car;
 using CarStockApi.Dto.Response;
 using CarStockApi.Mappers;
 using CarStockApi.Models;
