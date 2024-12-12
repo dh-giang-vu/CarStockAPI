@@ -20,13 +20,19 @@ public class SearchCarEndpoint : Endpoint<SearchCarRequest, List<CarResponse>>
     public override void Configure()
     {
         Get("api/cars/search");
-        AllowAnonymous();
     }
 
     // Search by Make and/or Model
     public override async Task HandleAsync(SearchCarRequest r, CancellationToken c)
     {
-        var sql = "SELECT * FROM Cars WHERE 1=1";
+        var dealerId = User.FindFirst("DealerId")?.Value;
+
+        if (dealerId == null)
+        {
+            ThrowError("User has no claim named DealerId.");
+        }
+
+        var sql = "SELECT * FROM Cars WHERE DealerId = @DealerId";
 
         // if Make is specified then filter by Make
         if (!string.IsNullOrEmpty(r.Make))
@@ -40,7 +46,12 @@ public class SearchCarEndpoint : Endpoint<SearchCarRequest, List<CarResponse>>
             sql += " AND Model = @Model";
         }
 
-        var cars = (await _connection.QueryAsync<Car>(sql, r)).ToList();
+        var cars = (await _connection.QueryAsync<Car>(sql, new 
+        { 
+            r.Make,
+            r.Model,
+            DealerId = dealerId 
+        })).ToList();
 
         await SendOkAsync(cars.ToCarResponseList());
     }

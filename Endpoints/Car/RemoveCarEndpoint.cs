@@ -16,14 +16,20 @@ public class RemoveCarEndpoint : EndpointWithoutRequest
     public override void Configure()
     {
         Delete("/api/cars/{CarId}");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken c)
     {
+        var dealerId = User.FindFirst("DealerId")?.Value;
+
+        if (dealerId == null)
+        {
+            ThrowError("User has no claim named DealerId.");
+        }
+
         var carId = Route<int>("CarId");
-        var sql = "DELETE FROM Cars WHERE Id = @Id";
-        var rowsAffected = await _connection.ExecuteAsync(sql, new { Id = carId });
+        var sql = "DELETE FROM Cars WHERE Id = @Id AND DealerId = @DealerId";
+        var rowsAffected = await _connection.ExecuteAsync(sql, new { Id = carId, DealerId = dealerId });
 
         if (rowsAffected == 1)
         {
@@ -31,7 +37,7 @@ public class RemoveCarEndpoint : EndpointWithoutRequest
         }
         else
         {
-            ThrowError($"Error removing car {carId}.", 500);
+            await SendAsync("You don't have this car.", 401);
         }
     }
 }

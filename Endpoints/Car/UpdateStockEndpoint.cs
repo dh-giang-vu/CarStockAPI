@@ -17,13 +17,24 @@ public class UpdateStockEndpoint : Endpoint<UpdateStockRequest>
     public override void Configure()
     {
         Put("api/cars");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(UpdateStockRequest r, CancellationToken c)
     {
-        var sql = "UPDATE Cars SET StockLevel = @NewStockLevel WHERE Id = @CarId";
-        var rowsAffected = await _connection.ExecuteAsync(sql, r);
+        var dealerId = User.FindFirst("DealerId")?.Value;
+
+        if (dealerId == null)
+        {
+            ThrowError("User has no claim named DealerId.");
+        }
+
+        var sql = "UPDATE Cars SET StockLevel = @NewStockLevel WHERE Id = @CarId AND DealerId = @DealerId";
+        var rowsAffected = await _connection.ExecuteAsync(sql, new 
+        {
+            r.NewStockLevel,
+            r.CarId,
+            DealerId = dealerId
+        });
 
         if (rowsAffected == 1)
         {

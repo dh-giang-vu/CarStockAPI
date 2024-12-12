@@ -17,15 +17,28 @@ public class AddCarEndpoint : Endpoint<AddCarRequest>
     public override void Configure()
     {
         Post("/api/cars");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(AddCarRequest r, CancellationToken c)
     {
+        var dealerId = User.FindFirst("DealerId")?.Value;
+
+        if (dealerId == null)
+        {
+            ThrowError("User has no claim named DealerId.");
+        }
+
         var sql = "INSERT INTO Cars (Make, Model, StockLevel, Year, DealerId) " +
                   "VALUES (@Make, @Model, @StockLevel, @Year, @DealerId)";
 
-        var rowsAffected = await _connection.ExecuteAsync(sql, r);
+        var rowsAffected = await _connection.ExecuteAsync(sql, new
+        {
+            r.Make,
+            r.Model,
+            r.Year,
+            r.StockLevel,
+            DealerId = dealerId
+        });
 
         if (rowsAffected == 1)
         {

@@ -19,13 +19,19 @@ public class ListCarEndpoint : EndpointWithoutRequest<List<CarResponse>>
     public override void Configure()
     {
         Get("/api/cars");
-        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken c)
     {
-        var sql = "SELECT * FROM Cars";
-        var cars = (await _connection.QueryAsync<Car>(sql)).ToList();
+        var dealerId = User.FindFirst("DealerId")?.Value;
+
+        if (dealerId == null)
+        {
+            ThrowError("User has no claim named DealerId.");
+        }
+
+        var sql = "SELECT * FROM Cars WHERE DealerId = @DealerId";
+        var cars = (await _connection.QueryAsync<Car>(sql, new { DealerId = int.Parse(dealerId) })).ToList();
 
         await SendOkAsync(cars.ToCarResponseList());
     }
