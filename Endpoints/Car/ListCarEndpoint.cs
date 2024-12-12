@@ -27,7 +27,7 @@ public class ListCarEndpoint : EndpointWithoutRequest<List<CarResponse>>
 
         if (dealerId == null)
         {
-            ThrowError("User has no claim named DealerId.");
+            ThrowError("Claim DealerId not found.", 500);
         }
 
         var sql = "SELECT * FROM Cars WHERE DealerId = @DealerId";

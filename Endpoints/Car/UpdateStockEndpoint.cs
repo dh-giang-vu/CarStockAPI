@@ -25,7 +25,7 @@ public class UpdateStockEndpoint : Endpoint<UpdateStockRequest>
 
         if (dealerId == null)
         {
-            ThrowError("User has no claim named DealerId.");
+            ThrowError("Claim DealerId not found.", 500);
         }
 
         var sql = "UPDATE Cars SET StockLevel = @NewStockLevel WHERE Id = @CarId AND DealerId = @DealerId";
@@ -42,7 +42,7 @@ public class UpdateStockEndpoint : Endpoint<UpdateStockRequest>
         }
         else
         {
-            ThrowError($"Error updating stock level of car {r.CarId}.", 500);
+            await SendAsync($"Not authorised to update stock level of car {r.CarId}.", 401);
         }
     }
 }

@@ -36,7 +36,7 @@ public class RegisterDealerEndpoint : Endpoint<RegisterDealerRequest>
         }
         else
         {
-            ThrowError("Failed to register new dealer.", 500);
+            await SendAsync("Failed to register new dealer.", 500);
         }
     }
 }

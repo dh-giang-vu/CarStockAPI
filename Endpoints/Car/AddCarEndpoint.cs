@@ -25,7 +25,7 @@ public class AddCarEndpoint : Endpoint<AddCarRequest>
 
         if (dealerId == null)
         {
-            ThrowError("User has no claim named DealerId.");
+            ThrowError("Claim DealerId not found.", 500);
         }
 
         var sql = "INSERT INTO Cars (Make, Model, StockLevel, Year, DealerId) " +
@@ -46,7 +46,7 @@ public class AddCarEndpoint : Endpoint<AddCarRequest>
         }
         else
         {
-            ThrowError("Failed to add new car", 500);
+            await SendAsync("Failed to add car.", 500);
         }
     }
 }

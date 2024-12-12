@@ -24,7 +24,7 @@ public class RemoveCarEndpoint : EndpointWithoutRequest
 
         if (dealerId == null)
         {
-            ThrowError("User has no claim named DealerId.");
+            ThrowError("Claim DealerId not found.", 500);
         }
 
         var carId = Route<int>("CarId");
@@ -37,7 +37,7 @@ public class RemoveCarEndpoint : EndpointWithoutRequest
         }
         else
         {
-            await SendAsync("You don't have this car.", 401);
+            await SendAsync($"Not authorised to remove car {carId}.", 401);
         }
     }
 }
