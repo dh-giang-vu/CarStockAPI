@@ -1,4 +1,4 @@
-﻿namespace CarStockApi.Endpoints;
+﻿namespace CarStockApi.Endpoints.Car;
 
 using CarStockApi.Dto.Request.Car;
 using CarStockApi.Dto.Response;
