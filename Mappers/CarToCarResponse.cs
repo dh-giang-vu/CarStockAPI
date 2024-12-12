@@ -16,4 +16,14 @@ public static class CarToCarResponse
             StockLevel = car.StockLevel
         };
     }
+
+    public static List<CarResponse> ToCarResponseList(this List<Car> cars)
+    {
+        var carResponses = new List<CarResponse>();
+        foreach (var car in cars)
+        {
+            carResponses.Add(ToCarResponse(car));
+        }
+        return carResponses;
+    }
 }

@@ -42,12 +42,6 @@ public class SearchCarEndpoint : Endpoint<SearchCarRequest, List<CarResponse>>
 
         var cars = (await _connection.QueryAsync<Car>(sql, r)).ToList();
 
-        var carResponses = new List<CarResponse>();
-        foreach (var car in cars)
-        {
-            carResponses.Add(car.ToCarResponse());
-        }
-
-        await SendOkAsync(carResponses);
+        await SendOkAsync(cars.ToCarResponseList());
     }
 }
