@@ -28,6 +28,12 @@ public class AddCarEndpoint : Endpoint<AddCarRequest>
             ThrowError("Claim DealerId not found.", 500);
         }
 
+        if (await CheckCarIsInDB(r.Make, r.Model, r.Year, dealerId))
+        {
+            await SendAsync("This car already exists.", 400);
+            return;
+        }
+
         var sql = "INSERT INTO Cars (Make, Model, StockLevel, Year, DealerId) " +
                   "VALUES (@Make, @Model, @StockLevel, @Year, @DealerId)";
 
@@ -48,5 +54,19 @@ public class AddCarEndpoint : Endpoint<AddCarRequest>
         {
             await SendAsync("Failed to add car.", 500);
         }
+    }
+
+    private async Task<bool> CheckCarIsInDB(string make, string model, int year, string dealerId)
+    {
+        var sql = "SELECT COUNT(*) FROM Cars WHERE Make = @Make AND Model = @Model AND Year = @Year AND DealerId = @DealerId";
+        var count = await _connection.ExecuteScalarAsync<int>(sql, new
+        {
+            Make = make,
+            Model = model,
+            Year = year,
+            DealerId = dealerId
+        });
+
+        return count > 0;
     }
 }

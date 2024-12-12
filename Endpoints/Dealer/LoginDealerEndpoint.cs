@@ -35,6 +35,7 @@ public class LoginDealerEndpoint : Endpoint<LoginDealerRequest, LoginDealerRespo
         if (dealer == null)
         {
             await SendAsync(new LoginDealerResponse { Message = "Username not found." }, 401);
+            return;
         }
 
         var result = _hasher.VerifyHashedPassword(r.Credentials, dealer.Password, r.Credentials.Password);
