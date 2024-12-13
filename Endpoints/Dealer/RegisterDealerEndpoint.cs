@@ -6,6 +6,7 @@ using FastEndpoints;
 using Microsoft.AspNetCore.Identity;
 using CarStockApi.Models;
 using System.Data;
+using CarStockApi.Dto.Response;
 
 public class RegisterDealerEndpoint : Endpoint<RegisterDealerRequest>
 {
@@ -28,15 +29,33 @@ public class RegisterDealerEndpoint : Endpoint<RegisterDealerRequest>
     {
         var sql = "INSERT INTO Dealers (Name, Username, Password) VALUES (@Name, @Username, @Password)";
 
-        var rowsAffected = await _connection.ExecuteAsync(sql, new { Name = r.Name, Username = r.Credentials.Username, Password = _hasher.HashPassword(r.Credentials, r.Credentials.Password) });
+        try
+        {
+            var rowsAffected = await _connection.ExecuteAsync(sql, new
+            {
+                r.Name,
+                r.Credentials.Username,
+                Password = _hasher.HashPassword(r.Credentials, r.Credentials.Password)
+            });
 
-        if (rowsAffected == 1)
-        {
-            await SendOkAsync();
+            if (rowsAffected == 1)
+            {
+                await SendOkAsync(new GeneralResponse
+                {
+                    Message = "Dealer registered successfully."
+                });
+            }
         }
-        else
+        // catch error: registered with already existing username
+        catch (System.Data.SQLite.SQLiteException ex) when (ex.ResultCode == System.Data.SQLite.SQLiteErrorCode.Constraint && ex.Message.Contains("UNIQUE constraint failed: Dealers.Username"))
         {
-            await SendAsync("Failed to register new dealer.", 500);
+            await SendAsync(new GeneralResponse
+            {
+                Message = "Username is already taken.",
+                Details = r.Credentials.Username
+            }, 400);
         }
+
+        // let ASP.NET handle other uncaught exceptions by itself (for now)
     }
 }

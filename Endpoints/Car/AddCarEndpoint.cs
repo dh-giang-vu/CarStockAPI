@@ -1,6 +1,7 @@
 ﻿namespace CarStockApi.Endpoints.Car;
 
 using CarStockApi.Dto.Request.Car;
+using CarStockApi.Dto.Response;
 using Dapper;
 using FastEndpoints;
 using System.Data;
@@ -25,19 +26,28 @@ public class AddCarEndpoint : Endpoint<AddCarRequest>
 
         if (dealerId == null)
         {
-            ThrowError("Claim DealerId not found.", 500);
+            await SendAsync(new GeneralResponse
+            {
+                Message = "Claim DealerId not found."
+            }, 500);
+
+            return;
         }
 
         if (await CheckCarIsInDB(r.Make, r.Model, r.Year, dealerId))
         {
-            await SendAsync("This car already exists.", 400);
+            await SendAsync(new GeneralResponse
+            {
+                Message = "This car already exists.",
+                Details = r
+            }, 400);
             return;
         }
 
         var sql = "INSERT INTO Cars (Make, Model, StockLevel, Year, DealerId) " +
                   "VALUES (@Make, @Model, @StockLevel, @Year, @DealerId)";
 
-        var rowsAffected = await _connection.ExecuteAsync(sql, new
+        await _connection.ExecuteAsync(sql, new
         {
             r.Make,
             r.Model,
@@ -45,15 +55,12 @@ public class AddCarEndpoint : Endpoint<AddCarRequest>
             r.StockLevel,
             DealerId = dealerId
         });
-
-        if (rowsAffected == 1)
+        
+        await SendOkAsync(new GeneralResponse
         {
-            await SendOkAsync();
-        }
-        else
-        {
-            await SendAsync("Failed to add car.", 500);
-        }
+            Message = "Car added successfully.",
+            Details = r
+        });
     }
 
     private async Task<bool> CheckCarIsInDB(string make, string model, int year, string dealerId)

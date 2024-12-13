@@ -17,13 +17,13 @@ public static class CarToCarResponse
         };
     }
 
-    public static List<CarResponse> ToCarResponseList(this List<Car> cars)
+    public static CarResponseList ToCarResponseList(this List<Car> cars)
     {
         var carResponses = new List<CarResponse>();
         foreach (var car in cars)
         {
             carResponses.Add(ToCarResponse(car));
         }
-        return carResponses;
+        return new CarResponseList { CarResponses = carResponses };
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace CarStockApi.Endpoints.Car;
 
+using CarStockApi.Dto.Response;
 using Dapper;
 using FastEndpoints;
 using System.Data;
@@ -24,7 +25,12 @@ public class RemoveCarEndpoint : EndpointWithoutRequest
 
         if (dealerId == null)
         {
-            ThrowError("Claim DealerId not found.", 500);
+            await SendAsync(new GeneralResponse
+            {
+                Message = "Claim DealerId not found."
+            }, 500);
+
+            return;
         }
 
         var carId = Route<int>("CarId");
@@ -33,11 +39,19 @@ public class RemoveCarEndpoint : EndpointWithoutRequest
 
         if (rowsAffected == 1)
         {
-            await SendOkAsync();
+            await SendOkAsync(new GeneralResponse
+            {
+                Message = "Car removed successfully.",
+                Details = carId
+            });
         }
         else
         {
-            await SendAsync($"Not authorised to remove car {carId}.", 401);
+            await SendAsync(new GeneralResponse
+            {
+                Message = "Not authorised to remove car.",
+                Details = carId   
+            }, 401);
         }
     }
 }

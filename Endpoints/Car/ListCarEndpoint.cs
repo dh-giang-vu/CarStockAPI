@@ -7,7 +7,7 @@ using Dapper;
 using FastEndpoints;
 using System.Data;
 
-public class ListCarEndpoint : EndpointWithoutRequest<List<CarResponse>>
+public class ListCarEndpoint : EndpointWithoutRequest<CarResponseList>
 {
     private readonly IDbConnection _connection;
 
@@ -27,7 +27,13 @@ public class ListCarEndpoint : EndpointWithoutRequest<List<CarResponse>>
 
         if (dealerId == null)
         {
-            ThrowError("Claim DealerId not found.", 500);
+            // ThrowError("Claim DealerId not found.", 500);
+            await SendAsync(new CarResponseList
+            {
+                Message = "Claim DealerId not found."
+            }, 500);
+            
+            return;
         }
 
         var sql = "SELECT * FROM Cars WHERE DealerId = @DealerId";
