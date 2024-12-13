@@ -48,7 +48,7 @@ Note: not all responses are shown.
   Content-Type: application/json
 
   {
-    "name": "My Name"
+    "name": "My Name",
     "credentials": {
         "username": "myUsername",
         "password": "mypassword123"
@@ -133,7 +133,7 @@ Note: not all responses are shown.
 
   {
     "make": "Audi",
-    "model: "A4",
+    "model": "A4",
     "year": 2016,
     "stockLevel": 88
   }
