@@ -26,6 +26,15 @@ The project should launch at `https://localhost:8080/`.
 
 ---
 
+## Quick Notes
+
+- Must register a Dealer "account" and "log in" first to access any endpoints involving cars.
+- If log in is successful, a JWT will be given. Send this token in the `Authorization` header of every request to endpoints involving cars.
+- The JWT Token is used by the server to identify which Dealer is making the request.
+- Examples of using all API endpoints are available below (requests & responses).
+
+---
+
 ## API Endpoints
 
 | HTTP Method | Endpoint                | Description                                                       |
@@ -218,6 +227,8 @@ Note: not all responses are shown.
   }
 
 - **Search car by make**:
+
+  Leaving `model` field `null` or as an empty string is equivalent to searching for **any model**.
   ```http
   GET /api/cars/search
   Authorization: Bearer jwt-token-from-authenticate-dealer
@@ -246,6 +257,8 @@ Note: not all responses are shown.
   ```
 
 - **Search car by model**:
+
+  Leaving `make` field `null` or as an empty string is equivalent to searching for **any make**.
   ```http
   GET /api/cars/search
   Authorization: Bearer jwt-token-from-authenticate-dealer
